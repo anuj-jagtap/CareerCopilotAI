@@ -1,5 +1,5 @@
+import re
 import fitz  # PyMuPDF
-
 
 def extract_text_from_pdf(pdf_path):
     """
@@ -26,23 +26,7 @@ def extract_text_from_pdf(pdf_path):
 
     return text
 
-
-# -------------------------
-# Testing
-# -------------------------
-#if __name__ == "__main__":
-
-#    pdf_path = "resumes/sample_resume.pdf"
-
-#    extracted_text = extract_text_from_pdf(pdf_path)
-
-#    print("\n===== EXTRACTED RESUME TEXT =====\n")
-#    print(extracted_text)
     
-    
-import re
-import fitz
-
 def clean_resume_text(text):
     """
     Cleans the extracted resume text.
@@ -65,22 +49,130 @@ def clean_resume_text(text):
 
     # Remove leading and trailing spaces
     text = text.strip()
+    
+    # Remove zero-width spaces and other invisible Unicode characters
+    text = text.replace("\u200b", "")
+    text = text.replace("\u200c", "")
+    text = text.replace("\u200d", "")
+    text = text.replace("\ufeff", "")
 
     return text
 
-#-------------------------
+
+def extract_email(text):
+    """
+    Extract email address from resume text.
+
+    Args:
+        text (str): Cleaned resume text.
+
+    Returns:
+        str: Email address if found, else None.
+    """
+
+    email_pattern = r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}"
+
+    match = re.search(email_pattern, text)
+
+    if match:
+        return match.group()
+
+    return None
+
+
+def extract_phone(text):
+    """
+    Extract phone number from resume text.
+
+    Args:
+        text (str): Cleaned resume text.
+
+    Returns:
+        str: Phone number if found, else None.
+    """
+
+    phone_pattern = r"(?:\+91[\s-]?)?[6-9]\d{9}"
+
+    match = re.search(phone_pattern, text)
+
+    if match:
+        return match.group()
+
+    return None
+
+
+def extract_linkedin(text):
+    """
+    Extract LinkedIn profile URL from resume text.
+
+    Args:
+        text (str): Cleaned resume text.
+
+    Returns:
+        str: LinkedIn URL if found, else None.
+    """
+
+    linkedin_pattern = r"(?:https?://)?(?:www\.)?linkedin\.com/in/[A-Za-z0-9_-]+"
+
+    match = re.search(linkedin_pattern, text, re.IGNORECASE)
+
+    if match:
+        return match.group()
+
+    return None
+
+
+def extract_github(text):
+    """
+    Extract GitHub profile URL from resume text.
+
+    Args:
+        text (str): Cleaned resume text.
+
+    Returns:
+        str: GitHub URL if found, else None.
+    """
+
+    github_pattern = r"(?:https?://)?(?:www\.)?github\.com/[A-Za-z0-9_-]+"
+
+    match = re.search(github_pattern, text, re.IGNORECASE)
+
+    if match:
+        return match.group()
+
+    return None
+
+
+# -------------------------
 # Testing
-#------------------------
+# -------------------------
 
 if __name__ == "__main__":
 
     pdf_path = "resumes/sample_resume.pdf"
 
-    # Step 1: Extract text
+    # Step 1: Extract text from PDF
     extracted_text = extract_text_from_pdf(pdf_path)
 
-    # Step 2: Clean text
+    # Step 2: Clean extracted text
     cleaned_text = clean_resume_text(extracted_text)
 
-    print("\n===== CLEANED RESUME TEXT =====\n")
+    print("\n===== CLEANED TEXT =====\n")
     print(cleaned_text)
+ 
+    # Step 3: Extract candidate information
+    candidate = {
+        "name": "",
+        "email": extract_email(cleaned_text),
+        "phone": extract_phone(cleaned_text),
+        "linkedin": extract_linkedin(cleaned_text),
+        "github": extract_github(cleaned_text),
+        "skills": [],
+        "education": [],
+        "projects": []
+    }
+
+    print("\n========== CANDIDATE PROFILE ==========\n")
+
+    for key, value in candidate.items():
+        print(f"{key.capitalize():12}: {value}")
