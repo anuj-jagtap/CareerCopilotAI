@@ -1,5 +1,39 @@
 import re
 
+def extract_name(text):
+    """
+    Extract candidate name from resume.
+
+    Assumption:
+    Name is usually the first meaningful line.
+    """
+
+    lines = text.split("\n")
+
+    for line in lines:
+
+        line = line.strip()
+
+        if len(line) == 0:
+            continue
+
+        # Skip lines containing common contact info
+        if "@" in line:
+            continue
+
+        if "linkedin" in line.lower():
+            continue
+
+        if "github" in line.lower():
+            continue
+
+        if re.search(r"\d", line):
+            continue
+
+        return line
+
+    return ""
+
 def extract_email(text):
     """
     Extract email address from resume text.
@@ -82,3 +116,17 @@ def extract_github(text):
         return match.group()
 
     return None
+
+if __name__ == "__main__":
+
+    sample = """
+    ANUJ JAGTAP
+
+    Data Scientist
+
+    jagtapanuj3@gmail.com
+
+    +91 9309927273
+    """
+
+    print(extract_name(sample))

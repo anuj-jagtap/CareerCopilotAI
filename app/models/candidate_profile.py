@@ -1,7 +1,10 @@
+import json
+
+
 class CandidateProfile:
     """
     Central data model for CareerCopilot AI.
-    Every agent reads from and updates this profile.
+    Every agent updates this profile.
     """
 
     def __init__(self):
@@ -28,12 +31,49 @@ class CandidateProfile:
 
         self.profile_strength = {}
 
+    # -------------------------
+    # Personal Information
+    # -------------------------
+
+    def update_personal_information(
+        self,
+        name,
+        email,
+        phone,
+        linkedin,
+        github
+    ):
+        """
+        Update candidate personal information.
+        """
+
+        self.personal_information = {
+            "name": name,
+            "email": email,
+            "phone": phone,
+            "linkedin": linkedin,
+            "github": github
+        }
+
+    # -------------------------
+    # Skills
+    # -------------------------
+
     def add_skills(self, skills):
-        """Update candidate skills."""
+        """
+        Add structured skills.
+        """
+
         self.skills = skills
 
+    # -------------------------
+    # Profile
+    # -------------------------
+
     def get_profile(self):
-        """Return complete candidate profile."""
+        """
+        Return complete candidate profile.
+        """
 
         return {
             "personal_information": self.personal_information,
@@ -45,20 +85,23 @@ class CandidateProfile:
             "job_preferences": self.job_preferences,
             "profile_strength": self.profile_strength
         }
-        
-    
-    def update_personal_information(
-    self,
-    name,
-    email,
-    phone,
-    linkedin,
-    github
-    ):
-        self.personal_information = {
-            "name": name,
-            "email": email,
-            "phone": phone,
-            "linkedin": linkedin,
-            "github": github
-            }
+
+    # -------------------------
+    # Save JSON
+    # -------------------------
+
+    def save_as_json(self, output_path):
+        """
+        Save candidate profile as JSON.
+        """
+
+        with open(output_path, "w", encoding="utf-8") as file:
+
+            json.dump(
+                self.get_profile(),
+                file,
+                indent=4,
+                ensure_ascii=False
+            )
+
+        print(f"Candidate profile saved to {output_path}")
