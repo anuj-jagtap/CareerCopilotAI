@@ -1,3 +1,4 @@
+from pydoc import text
 import re
 
 
@@ -11,31 +12,41 @@ class ResumePreprocessor:
 
     def preprocess(self, text):
         """
-        Clean and normalize resume text.
+        Clean and normalize resume text while preserving
+        the resume structure.
         """
+        
+        # Convert Windows line endings
+        text = text.replace("\r\n", "\n")
+        text = text.replace("\r", "\n")
 
-        # Lowercase
+        # Replace tabs
+        text = text.replace("\t", " ")
+
+        # Remove invisible Unicode characters
+        text = text.replace("\u200b", "")
+        text = text.replace("\ufeff", "")
+        text = text.replace("\u00a0", " ")
+
+        # Convert to lowercase
         text = text.lower()
 
-        # Remove extra spaces
-        text = re.sub(r"\s+", " ", text)
+        # Fix email formatting
+        text = re.sub(r"\s*@\s*", "@", text)
+        text = re.sub(r"\s*\.\s*", ".", text)
 
         # Remove unwanted symbols
-        text = re.sub(r"[^\w\s#+./-]", " ", text)
+        text = re.sub(r"[^\w\s@#+./,\-]", " ", text)
 
-        # Remove multiple spaces again
-        text = re.sub(r"\s+", " ", text)
+        # Remove extra spaces but preserve newlines
+        text = re.sub(r"[ ]{2,}", " ", text)
+
+        # Trim spaces around newlines
+        text = re.sub(r" *\n *", "\n", text)
+
+        # Remove excessive blank lines
+        text = re.sub(r"\n{3,}", "\n\n", text)
 
         return text.strip()
     
     
-if __name__ == "__main__":
-
-    sample = """
-    Python, SQL,   Machine Learning
-    Built dashboards in Power BI.
-    """
-
-    preprocessor = ResumePreprocessor()
-
-    print(preprocessor.preprocess(sample))

@@ -34,10 +34,14 @@ class CareerPipeline:
 
         # Step 1
         raw_text = extract_text_from_pdf(pdf_path)
+        
 
         # Step 2
         clean_text = self.preprocessor.preprocess(raw_text)
-        
+
+
+        # -----------------------------------------------
+
         # Step 3
         name = extract_name(clean_text)
         email = extract_email(clean_text)
